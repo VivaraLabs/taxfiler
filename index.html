@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1C3A2A">
+<title>TaxFiler</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #F7F4EE;
+  --surface: #FEFCF8;
+  --surface2: #EFEBE2;
+  --surface3: #E5E0D5;
+  --border: #D6D0C4;
+  --border2: #C2BAA8;
+  --text: #1A1710;
+  --text2: #5C5649;
+  --text3: #9A9185;
+  --green: #1C3A2A;
+  --green-mid: #2D5A3D;
+  --green-light: #E3EDE6;
+  --green-pale: #F0F5F1;
+  --amber: #7A5C1E;
+  --amber-light: #FBF3E2;
+  --red: #8B2E2E;
+  --red-light: #FAE8E8;
+  --blue: #1E3F6E;
+  --blue-light: #E5EDF7;
+  --bottom-nav-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 100px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  overflow: hidden;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── SHELL ─── */
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  height: 100dvh;
+}
+
+.topbar {
+  background: var(--green);
+  color: white;
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.logo-text {
+  font-family: 'Lora', serif;
+  font-size: 19px;
+  letter-spacing: -0.2px;
+  color: white;
+}
+.logo-sub {
+  font-size: 10px;
+  opacity: 0.6;
+  font-weight: 300;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  display: block;
+  margin-top: -1px;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-badge {
+  background: #E8A030;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  display: none;
+}
+.topbar-badge.show { display: inline-block; }
+
+.scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 16px);
+}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  height: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 6px;
+  z-index: 100;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  position: relative;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-item.active { color: var(--green); font-weight: 500; }
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-pip {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  width: 7px; height: 7px;
+  background: #E8A030;
+  border-radius: 50%;
+  border: 1.5px solid var(--surface);
+  display: none;
+}
+.nav-pip.show { display: block; }
+
+/* ─── PANELS ─── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ─── UPLOAD PANEL ─── */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 12px 14px 0;
+}
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.metric-label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 2px;
+}
+.metric-value { font-size: 18px; font-weight: 500; color: var(--text); }
+
+.upload-section { padding: 12px 14px; }
+.section-heading {
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.add-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.add-btn-primary:active { opacity: 0.85; }
+.add-btn-primary .btn-icon-big { font-size: 20px; }
+
+.add-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.add-btn-secondary input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.add-btn-secondary:active { background: var(--surface2); }
+
+.ocr-info-card {
+  background: var(--green-pale);
+  border: 1px solid var(--green-light);
+  border-left: 3px solid var(--green-mid);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.ocr-info-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ocr-info-body {
+  font-size: 12px;
+  color: var(--green-mid);
+  line-height: 1.55;
+}
+.ocr-info-body a {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ocr-key-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.ocr-key-row input {
+  flex: 1;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 8px 10px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+}
+.ocr-key-row input:focus { border-color: var(--green-mid); }
+.btn-green-sm {
+  padding: 8px 14px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.processing-list { padding: 0 14px; }
+.proc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  animation: fadeUp 0.2s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } }
+.proc-thumb {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  background: var(--surface2);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.proc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.proc-info { flex: 1; min-width: 0; }
+.proc-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.proc-status { font-size: 11px; color: var(--text2); margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+.spinner { width: 10px; height: 10px; border: 1.5px solid var(--border2); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.proc-bar { height: 2px; background: var(--border); border-radius: 1px; margin-top: 5px; overflow: hidden; }
+.proc-bar-fill { height: 100%; background: var(--green-mid); border-radius: 1px; transition: width 0.4s ease; }
+.status-ok { color: var(--green-mid); font-weight: 500; }
+.status-err { color: var(--red); }
+
+/* ─── REVIEW PANEL ─── */
+.panel-header {
+  padding: 12px 14px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-header h2 {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.filter-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 14px 10px;
+  display: flex;
+  gap: 6px;
+  scrollbar-width: none;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.filter-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text2);
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.filter-chip.active { background: var(--green); color: white; border-color: var(--green); }
+
+.review-list { padding: 0 14px; display: flex; flex-direction: column; gap: 10px; }
+.review-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.review-card-top {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  align-items: flex-start;
+}
+.review-img {
+  width: 60px; height: 60px;
+  border-radius: 8px;
+  background: var(--surface2);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border: 1px solid var(--border);
+}
+.review-img img { width: 100%; height: 100%; object-fit: cover; }
+.review-info { flex: 1; min-width: 0; }
+.review-supplier { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+.review-filename { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text3); margin-bottom: 6px; word-break: break-all; }
+.review-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.review-card-actions {
+  display: flex;
+  border-top: 1px solid var(--border);
+}
+.review-action-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.review-action-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.review-action-btn:active { background: var(--surface2); }
+.review-action-btn.approve { color: var(--green); font-weight: 500; }
+.review-action-btn.remove { color: var(--red); }
+
+/* ─── RECORDS PANEL ─── */
+.records-list { padding: 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.record-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.record-body { flex: 1; min-width: 0; }
+.record-supplier { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.record-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.record-amount { font-size: 15px; font-weight: 500; text-align: right; flex-shrink: 0; }
+.record-amount-gst { font-size: 10px; color: var(--text3); text-align: right; }
+
+/* ─── REPORT PANEL ─── */
+.report-header-row {
+  padding: 12px 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.report-header-row select {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.report-body { padding: 0 14px; }
+.report-summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.report-sum-header {
+  background: var(--green);
+  color: white;
+  padding: 14px 16px;
+}
+.report-sum-title { font-family: 'Lora', serif; font-size: 17px; margin-bottom: 2px; }
+.report-sum-sub { font-size: 12px; opacity: 0.7; }
+.report-sum-body { padding: 0 16px; }
+.report-sum-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.report-sum-row:last-child { border-bottom: none; }
+.report-sum-row .label { display: flex; align-items: center; gap: 8px; }
+.report-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1.5px solid var(--border2);
+  background: var(--surface2);
+  font-size: 15px;
+  font-weight: 600;
+}
+.totals-mini { padding: 12px 16px; font-size: 13px; color: var(--text2); display: flex; justify-content: space-between; }
+
+/* ─── SETTINGS PANEL ─── */
+.settings-section { padding: 14px 14px 0; }
+.settings-section h3 {
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-icon { font-size: 20px; flex-shrink: 0; }
+.settings-row-info { flex: 1; }
+.settings-row-title { font-size: 14px; font-weight: 500; }
+.settings-row-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.status-pill {
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+}
+.status-on { background: var(--green-light); color: var(--green); }
+.status-off { background: var(--surface2); color: var(--text3); }
+.settings-toggle {
+  width: 42px; height: 24px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border2);
+  background: var(--surface2);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.settings-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--text3);
+  transition: all 0.2s;
+}
+.settings-toggle.on { background: var(--green); border-color: var(--green); }
+.settings-toggle.on::after { transform: translateX(18px); background: white; }
+
+.cat-folder-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.cat-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cat-folder-row:last-child { border-bottom: none; }
+.cat-folder-input {
+  flex: 1;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--text);
+  min-width: 0;
+}
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.b-Travel   { background:#E5EDF7; color:#1E3F6E; }
+.b-Office   { background:var(--green-light); color:var(--green); }
+.b-Utilities{ background:var(--amber-light); color:var(--amber); }
+.b-Meals    { background:#F5EDE6; color:#6B3A1F; }
+.b-Equipment{ background:#EFE8F8; color:#4A2070; }
+.b-Other    { background:var(--surface2); color:var(--text2); }
+.b-approved { background:var(--green-light); color:var(--green); }
+.b-pending  { background:var(--amber-light); color:var(--amber); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  padding: 9px 16px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { background: var(--surface2); }
+.btn-primary { background: var(--green); color: white; border-color: var(--green); }
+.btn-primary:active { opacity: 0.85; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* ─── FULL-SCREEN CAMERA ─── */
+.camera-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 500;
+  display: none;
+  flex-direction: column;
+}
+.camera-overlay.open { display: flex; }
+.camera-video {
+  flex: 1;
+  width: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.camera-bar {
+  background: rgba(0,0,0,0.7);
+  padding: 16px 24px calc(var(--safe-bottom) + 16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.camera-close-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.5);
+  background: transparent;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.shutter-btn {
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  border: 4px solid white;
+  background: rgba(255,255,255,0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.shutter-btn:active { background: rgba(255,255,255,0.4); }
+.shutter-inner {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: white;
+}
+.flip-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.5);
+  background: transparent;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── PHOTO SOURCE SHEET ─── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 400;
+  display: none;
+  align-items: flex-end;
+}
+.sheet-overlay.open { display: flex; }
+.sheet {
+  width: 100%;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 8px 16px calc(var(--safe-bottom) + 16px);
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  border-radius: 2px;
+  background: var(--border2);
+  margin: 8px auto 16px;
+}
+.sheet-title { font-size: 12px; color: var(--text3); text-align: center; margin-bottom: 10px; font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; }
+.sheet-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.1s;
+  text-align: left;
+}
+.sheet-btn:active { opacity: 0.8; }
+.sheet-btn-icon { font-size: 24px; flex-shrink: 0; }
+.sheet-btn-label { font-size: 15px; font-weight: 500; color: var(--text); display: block; }
+.sheet-btn-sub { font-size: 12px; color: var(--text2); display: block; margin-top: 1px; }
+.sheet-cancel {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text2);
+  cursor: pointer;
+  margin-top: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── EDIT SHEET ─── */
+.edit-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 300;
+  display: none;
+  align-items: flex-end;
+}
+.edit-sheet-overlay.open { display: flex; }
+.edit-sheet {
+  width: 100%;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--safe-bottom) + 16px);
+}
+.edit-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.edit-sheet-header h3 { font-size: 15px; font-weight: 500; }
+.edit-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.field-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  display: block;
+  margin-bottom: 5px;
+}
+.field-input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+}
+.field-input:focus { border-color: var(--green-mid); background: var(--surface); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.cat-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.cat-opt {
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text2);
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: all 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cat-opt.selected { border-width: 2px; }
+.cat-opt.sel-Travel    { background:#E5EDF7; color:#1E3F6E; border-color:#1E3F6E; }
+.cat-opt.sel-Office    { background:var(--green-light); color:var(--green); border-color:var(--green); }
+.cat-opt.sel-Utilities { background:var(--amber-light); color:var(--amber); border-color:var(--amber); }
+.cat-opt.sel-Meals     { background:#F5EDE6; color:#6B3A1F; border-color:#6B3A1F; }
+.cat-opt.sel-Equipment { background:#EFE8F8; color:#4A2070; border-color:#4A2070; }
+.cat-opt.sel-Other     { background:var(--surface2); color:var(--text2); border-color:var(--border2); }
+
+.ocr-detected {
+  background: var(--green-pale);
+  border: 1px solid var(--green-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--green-mid);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.rename-preview {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text2);
+  word-break: break-all;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text3);
+}
+.empty-icon { font-size: 40px; opacity: 0.4; display: block; margin-bottom: 10px; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: white;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 9999;
+  display: none;
+  animation: popIn 0.2s ease;
+  max-width: 90vw;
+  text-align: center;
+}
+@keyframes popIn { from { opacity:0; transform:translateX(-50%) scale(0.9); } }
+
+canvas#cap-canvas { display: none; }
+
+/* ─── DESKTOP TWEAKS ─── */
+@media (min-width: 600px) {
+  .metrics-row { grid-template-columns: repeat(4, 1fr); }
+  .review-list, .records-list, .processing-list { max-width: 600px; margin: 0 auto; }
+  .report-body { max-width: 600px; margin: 0 auto; }
+  .settings-section { max-width: 600px; margin: 0 auto; }
+  .upload-section { max-width: 600px; margin: 0 auto; }
+  .sheet { max-width: 420px; margin: 0 auto; border-radius: 20px 20px 0 0; }
+  .edit-sheet { max-width: 500px; margin: 0 auto; border-radius: 20px 20px 0 0; }
+  .metrics-row { max-width: 600px; margin: 0 auto; padding: 12px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div>
+      <div class="logo-text">TaxFiler</div>
+      <span class="logo-sub">Small business receipts</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge" id="topbar-badge">0 pending</span>
+    </div>
+  </div>
+
+  <!-- SCROLL BODY -->
+  <div class="scroll-body" id="scroll-body">
+
+    <!-- ── UPLOAD ── -->
+    <div class="panel active" id="panel-upload">
+      <div class="metrics-row">
+        <div class="metric-card"><div class="metric-label">Docs</div><div class="metric-value" id="m-count">0</div></div>
+        <div class="metric-card"><div class="metric-label">Excl GST</div><div class="metric-value" id="m-net">$0</div></div>
+        <div class="metric-card"><div class="metric-label">GST</div><div class="metric-value" id="m-gst">$0</div></div>
+        <div class="metric-card"><div class="metric-label">Incl GST</div><div class="metric-value" id="m-gross">$0</div></div>
+      </div>
+
+      <div class="upload-section">
+        <p class="section-heading" style="margin-top:14px">Add receipts &amp; invoices</p>
+
+        <button class="add-btn-primary" onclick="openSheet()">
+          <span class="btn-icon-big">📷</span>
+          Camera or photo library
+        </button>
+
+        <label class="add-btn-secondary">
+          <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFiles(this.files)">
+          <span style="font-size:18px">📎</span>
+          Upload files (PDF, JPG, PNG)
+        </label>
+
+        <!-- OCR INFO -->
+        <div class="ocr-info-card" id="ocr-info-section">
+          <div class="ocr-info-title">
+            <span>✦</span> Enable AI scanning (OCR)
+          </div>
+          <div class="ocr-info-body">
+            Automatically reads supplier, amount &amp; GST from photos.<br>
+            Costs ~$0.002 per receipt (less than half a cent).<br>
+            Get a free API key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+          </div>
+          <div class="ocr-key-row">
+            <input type="password" id="api-key-inline" placeholder="Paste API key here…" autocomplete="off">
+            <button class="btn-green-sm" onclick="saveApiKeyInline()">Save key</button>
+          </div>
+        </div>
+
+        <div id="ocr-active-badge" style="display:none;margin-bottom:10px">
+          <span class="badge b-Office" style="padding:5px 12px;font-size:12px">✦ AI scanning active</span>
+          <button onclick="clearApiKey()" style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;margin-left:8px;text-decoration:underline">change key</button>
+        </div>
+      </div>
+
+      <div class="processing-list" id="processing-list"></div>
+    </div>
+
+    <!-- ── REVIEW ── -->
+    <div class="panel" id="panel-review">
+      <div class="panel-header">
+        <h2>Review</h2>
+        <button class="btn btn-sm btn-primary" onclick="approveAll()">Approve all</button>
+      </div>
+      <div class="filter-scroll" id="review-filters">
+        <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-chip" onclick="setFilter('Travel',this)">Travel</button>
+        <button class="filter-chip" onclick="setFilter('Office',this)">Office</button>
+        <button class="filter-chip" onclick="setFilter('Utilities',this)">Utilities</button>
+        <button class="filter-chip" onclick="setFilter('Meals',this)">Meals</button>
+        <button class="filter-chip" onclick="setFilter('Equipment',this)">Equipment</button>
+        <button class="filter-chip" onclick="setFilter('Other',this)">Other</button>
+      </div>
+      <div class="review-list" id="review-list">
+        <div class="empty-state"><span class="empty-icon">🔍</span><p>Upload receipts to review them here</p></div>
+      </div>
+    </div>
+
+    <!-- ── RECORDS ── -->
+    <div class="panel" id="panel-records">
+      <div class="panel-header">
+        <h2>Records</h2>
+        <button class="btn btn-sm" onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div class="records-list" id="records-list">
+        <div class="empty-state"><span class="empty-icon">📂</span><p>No records yet</p></div>
+      </div>
+    </div>
+
+    <!-- ── REPORT ── -->
+    <div class="panel" id="panel-report">
+      <div class="report-header-row">
+        <select id="rpt-qtr" onchange="renderReport()">
+          <option value="Q1">Q1 — Jan–Mar</option>
+          <option value="Q2" selected>Q2 — Apr–Jun</option>
+          <option value="Q3">Q3 — Jul–Sep</option>
+          <option value="Q4">Q4 — Oct–Dec</option>
+        </select>
+        <select id="rpt-year" onchange="renderReport()">
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+        <button class="btn btn-sm btn-primary" onclick="window.print()">Print</button>
+      </div>
+      <div class="report-body" id="report-output"></div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-section">
+        <h3>Cloud storage</h3>
+        <div class="settings-card">
+          <div class="settings-row">
+            <span class="settings-row-icon">🟢</span>
+            <div class="settings-row-info">
+              <div class="settings-row-title">Google Drive</div>
+              <div class="settings-row-sub" id="gdrive-sub">Not connected</div>
+            </div>
+            <button class="settings-toggle" id="toggle-gdrive" onclick="toggleCloud('gdrive')"></button>
+          </div>
+          <div class="settings-row">
+            <span class="settings-row-icon">🔵</span>
+            <div class="settings-row-info">
+              <div class="settings-row-title">OneDrive</div>
+              <div class="settings-row-sub" id="onedrive-sub">Not connected</div>
+            </div>
+            <button class="settings-toggle" id="toggle-onedrive" onclick="toggleCloud('onedrive')"></button>
+          </div>
+          <div class="settings-row">
+            <span class="settings-row-icon">📦</span>
+            <div class="settings-row-info">
+              <div class="settings-row-title">Dropbox</div>
+              <div class="settings-row-sub" id="dropbox-sub">Not connected</div>
+            </div>
+            <button class="settings-toggle" id="toggle-dropbox" onclick="toggleCloud('dropbox')"></button>
+          </div>
+        </div>
+
+        <h3 style="margin-top:16px">Folder per category</h3>
+        <div class="cat-folder-card" id="cat-folder-rows"></div>
+
+        <h3 style="margin-top:16px">AI scanning (OCR)</h3>
+        <div class="settings-card">
+          <div class="settings-row" style="flex-wrap:wrap;gap:8px">
+            <span class="settings-row-icon">✦</span>
+            <div class="settings-row-info">
+              <div class="settings-row-title">Anthropic API key</div>
+              <div class="settings-row-sub">~$0.002 per receipt scan</div>
+            </div>
+          </div>
+          <div style="padding:0 14px 14px">
+            <input type="password" id="api-key-settings" class="field-input" placeholder="sk-ant-api03-…" autocomplete="off" style="font-family:'IBM Plex Mono',monospace;font-size:12px">
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveApiKeySettings()" style="flex:1;justify-content:center">Save key</button>
+              <button class="btn btn-sm" onclick="clearApiKey()" style="flex:1;justify-content:center">Clear</button>
+            </div>
+            <p style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">Key stored in your browser only. Get one free at <a href="https://console.anthropic.com" target="_blank" style="color:var(--green)">console.anthropic.com</a></p>
+          </div>
+        </div>
+
+        <div style="height:1rem"></div>
+      </div>
+    </div>
+
+  </div><!-- /scroll-body -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-upload" onclick="showPanel('upload')">
+      <span class="nav-icon">⬆</span>
+      Upload
+    </button>
+    <button class="nav-item" id="nav-review" onclick="showPanel('review')">
+      <span class="nav-pip" id="review-pip"></span>
+      <span class="nav-icon">🔍</span>
+      Review
+    </button>
+    <button class="nav-item" id="nav-records" onclick="showPanel('records')">
+      <span class="nav-icon">📂</span>
+      Records
+    </button>
+    <button class="nav-item" id="nav-report" onclick="showPanel('report')">
+      <span class="nav-icon">📊</span>
+      Report
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="showPanel('settings')">
+      <span class="nav-icon">⚙️</span>
+      Settings
+    </button>
+  </nav>
+
+</div><!-- /shell -->
+
+<!-- PHOTO SOURCE SHEET -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Add receipt or invoice</div>
+    <button class="sheet-btn" onclick="startCamera('environment')">
+      <span class="sheet-btn-icon">📷</span>
+      <div>
+        <span class="sheet-btn-label">Take a photo</span>
+        <span class="sheet-btn-sub">Use rear camera to photograph receipt</span>
+      </div>
+    </button>
+    <button class="sheet-btn" onclick="openLibrary()">
+      <span class="sheet-btn-icon">🖼️</span>
+      <div>
+        <span class="sheet-btn-label">Photo library</span>
+        <span class="sheet-btn-sub">Choose an existing photo or scan</span>
+      </div>
+    </button>
+    <button class="sheet-btn" onclick="openLibraryFiles()">
+      <span class="sheet-btn-icon">📎</span>
+      <div>
+        <span class="sheet-btn-label">Browse files</span>
+        <span class="sheet-btn-sub">PDF, JPG, PNG from Files app</span>
+      </div>
+    </button>
+    <button class="sheet-cancel" onclick="closeSheet()">Cancel</button>
+    <input type="file" id="lib-input" accept="image/*" style="display:none" onchange="handleFiles(this.files);closeSheet()">
+    <input type="file" id="files-input" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none" onchange="handleFiles(this.files);closeSheet()">
+  </div>
+</div>
+
+<!-- FULL-SCREEN CAMERA -->
+<div class="camera-overlay" id="camera-overlay">
+  <video id="cam-video" class="camera-video" autoplay playsinline muted></video>
+  <canvas id="cap-canvas"></canvas>
+  <div class="camera-bar">
+    <button class="camera-close-btn" onclick="stopCamera()">✕</button>
+    <button class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></button>
+    <button class="flip-btn" onclick="flipCamera()">🔄</button>
+  </div>
+</div>
+
+<!-- EDIT BOTTOM SHEET -->
+<div class="edit-sheet-overlay" id="edit-overlay" onclick="closeEditIfOutside(event)">
+  <div class="edit-sheet" id="edit-sheet">
+    <div class="edit-sheet-header">
+      <div class="sheet-handle" style="position:absolute;top:8px;left:50%;transform:translateX(-50%)"></div>
+      <h3 style="margin-top:12px">Edit document</h3>
+      <button onclick="closeEdit()" style="background:none;border:none;font-size:18px;color:var(--text2);cursor:pointer;padding:0">✕</button>
+    </div>
+    <div class="edit-body" id="edit-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = ['Travel','Office','Utilities','Meals','Equipment','Other'];
+let records = JSON.parse(localStorage.getItem('tf_records') || '[]');
+let reviewFilter = 'all';
+let cameraStream = null;
+let camFacing = 'environment';
+let editingId = null;
+
+const catPaths = JSON.parse(localStorage.getItem('tf_catpaths') || 'null') || Object.fromEntries(CATS.map(c => [c, `/TaxFiler/${c}/`]));
+const cloudState = JSON.parse(localStorage.getItem('tf_cloud') || '{}');
+
+function save() {
+  localStorage.setItem('tf_records', JSON.stringify(records));
+  localStorage.setItem('tf_catpaths', JSON.stringify(catPaths));
+  localStorage.setItem('tf_cloud', JSON.stringify(cloudState));
+}
+
+// ── API KEY ──
+function getApiKey() {
+  return localStorage.getItem('tf_apikey') || '';
+}
+function saveApiKeyInline() {
+  const v = document.getElementById('api-key-inline').value.trim();
+  if (!v) return;
+  localStorage.setItem('tf_apikey', v);
+  document.getElementById('api-key-inline').value = '';
+  checkApiKeyUI();
+  toast('API key saved — AI scanning active ✦');
+}
+function saveApiKeySettings() {
+  const v = document.getElementById('api-key-settings').value.trim();
+  if (!v) return;
+  localStorage.setItem('tf_apikey', v);
+  document.getElementById('api-key-settings').value = '';
+  checkApiKeyUI();
+  toast('API key saved');
+}
+function clearApiKey() {
+  localStorage.removeItem('tf_apikey');
+  checkApiKeyUI();
+  toast('API key removed');
+}
+function checkApiKeyUI() {
+  const has = !!getApiKey();
+  document.getElementById('ocr-info-section').style.display = has ? 'none' : 'block';
+  document.getElementById('ocr-active-badge').style.display = has ? 'flex' : 'none';
+}
+
+// ── NAV ──
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  document.getElementById('scroll-body').scrollTop = 0;
+  if (name === 'review') renderReview();
+  if (name === 'records') renderRecords();
+  if (name === 'report') renderReport();
+  if (name === 'settings') renderSettings();
+}
+
+// ── SHEET ──
+function openSheet() { document.getElementById('sheet-overlay').classList.add('open'); }
+function closeSheet(e) {
+  if (!e || e.target === document.getElementById('sheet-overlay')) {
+    document.getElementById('sheet-overlay').classList.remove('open');
+  }
+}
+function openLibrary() { document.getElementById('lib-input').click(); }
+function openLibraryFiles() { document.getElementById('files-input').click(); }
+
+// ── CAMERA ──
+async function startCamera(facing) {
+  closeSheet();
+  camFacing = facing;
+  try {
+    if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+    document.getElementById('cam-video').srcObject = cameraStream;
+    document.getElementById('camera-overlay').classList.add('open');
+  } catch(e) {
+    toast('Camera not available — try photo library');
+    openSheet();
+  }
+}
+function stopCamera() {
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  document.getElementById('camera-overlay').classList.remove('open');
+}
+function flipCamera() { startCamera(camFacing === 'environment' ? 'user' : 'environment'); }
+function capturePhoto() {
+  const video = document.getElementById('cam-video');
+  const canvas = document.getElementById('cap-canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob(blob => {
+    const file = new File([blob], `receipt_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    stopCamera();
+    processFile(file);
+  }, 'image/jpeg', 0.92);
+}
+
+// ── FILE PROCESSING ──
+function handleFiles(files) {
+  if (!files || !files.length) return;
+  Array.from(files).forEach(f => processFile(f));
+  showPanel('upload');
+}
+
+function processFile(file) {
+  const id = 'r' + Date.now() + Math.random().toString(36).slice(2, 5);
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const rec = { id, origName: file.name, ext, category: 'Other', supplier: '', amount: '', gst: '', notes: '', description: '', date: new Date().toISOString().slice(0,10), status: 'processing', approved: false, previewUrl: null, ocrDone: false, renamedFilename: '' };
+
+  if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+    const fr = new FileReader();
+    fr.onload = e => { rec.previewUrl = e.target.result; };
+    fr.readAsDataURL(file);
+  }
+
+  records.unshift(rec);
+  updateFilename(rec);
+  save();
+  updateMetrics();
+  addProcItem(rec);
+  updateBadges();
+
+  runOCR(file, rec)
+    .then(() => { updateProcItem(rec.id, 'done'); save(); updateMetrics(); updateBadges(); renderReview(); })
+    .catch(() => { rec.status = 'needs-review'; updateProcItem(rec.id, 'error'); save(); updateBadges(); renderReview(); });
+}
+
+async function runOCR(file, rec) {
+  const key = getApiKey();
+  if (!key) {
+    rec.category = guessCategory(file.name);
+    rec.status = 'needs-review';
+    updateFilename(rec);
+    return;
+  }
+
+  const toB64 = f => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(f);
+  });
+
+  const b64 = await toB64(file);
+  const mt = file.type || 'image/jpeg';
+
+  const prompt = `You are a receipt/invoice OCR engine for Australian small business tax.
+Extract and respond ONLY with valid JSON (no markdown, no extra text):
+{"supplier_name":"","total_amount":0.00,"gst_amount":0.00,"date":"YYYY-MM-DD","category":"","description":""}
+
+Rules:
+- date: YYYY-MM-DD format (use today ${rec.date} if not visible)
+- total_amount: full amount including GST
+- gst_amount: GST/tax shown, else calculate as total_amount/11
+- category: exactly one of Travel|Office|Utilities|Meals|Equipment|Other
+  Travel=transport/fuel/parking/taxi/rideshare/flights
+  Utilities=phone/internet/electricity/gas/water
+  Meals=food/restaurant/cafe/coffee/catering
+  Equipment=computers/hardware/tools/machinery
+  Office=stationery/printing/software/subscriptions/cleaning
+  Other=anything else
+- description: 3-6 words summarising the expense (e.g. "Office supplies Officeworks" or "Petrol Shell service station")`;
+
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 300,
+    messages: [{ role: 'user', content: [
+      { type: mt === 'application/pdf' ? 'document' : 'image', source: { type: 'base64', media_type: mt, data: b64 } },
+      { type: 'text', text: prompt }
+    ]}]
+  };
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('API ' + res.status);
+  const data = await res.json();
+  const text = (data.content || []).map(b => b.text || '').join('');
+  const clean = text.replace(/```json|```/g,'').trim();
+  const j = JSON.parse(clean);
+
+  rec.supplier = j.supplier_name || '';
+  rec.amount = j.total_amount ? parseFloat(j.total_amount).toFixed(2) : '';
+  rec.gst = j.gst_amount ? parseFloat(j.gst_amount).toFixed(2) : (rec.amount ? (parseFloat(rec.amount)/11).toFixed(2) : '');
+  rec.date = j.date || rec.date;
+  rec.category = CATS.includes(j.category) ? j.category : 'Other';
+  rec.description = j.description || '';
+  rec.ocrDone = true;
+  rec.status = 'needs-review';
+  updateFilename(rec);
+}
+
+function guessCategory(name) {
+  const n = name.toLowerCase();
+  if (/fuel|petrol|uber|lyft|taxi|flight|parking|toll|transit/.test(n)) return 'Travel';
+  if (/telstra|optus|vodafone|internet|electricity|gas|water|origin/.test(n)) return 'Utilities';
+  if (/cafe|restaurant|lunch|dinner|coffee|food|maccas/.test(n)) return 'Meals';
+  if (/computer|laptop|printer|tool|hardware|apple|dell/.test(n)) return 'Equipment';
+  if (/office|stationery|adobe|software|subscription/.test(n)) return 'Office';
+  return 'Other';
+}
+
+function updateFilename(rec) {
+  const d = (rec.date || '').replace(/-/g,'');
+  const desc = (rec.description || rec.supplier || rec.origName.replace(/\.[^.]+$/,'')).replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'-').slice(0,40);
+  rec.renamedFilename = `${d}-${desc}.pdf`;
+}
+
+// ── PROCESSING LIST ──
+function addProcItem(rec) {
+  const el = document.createElement('div');
+  el.className = 'proc-item';
+  el.id = 'pi-' + rec.id;
+  el.innerHTML = `
+    <div class="proc-thumb" id="pt-${rec.id}">${rec.ext==='pdf'?'📄':'🖼️'}</div>
+    <div class="proc-info">
+      <div class="proc-name">${rec.origName}</div>
+      <div class="proc-status" id="ps-${rec.id}"><span class="spinner"></span> Scanning…</div>
+      <div class="proc-bar"><div class="proc-bar-fill" id="pb-${rec.id}" style="width:20%"></div></div>
+    </div>`;
+  const list = document.getElementById('processing-list');
+  list.prepend(el);
+
+  // animate progress bar
+  let w = 20;
+  const iv = setInterval(() => {
+    w = Math.min(w + Math.random()*15, 85);
+    const b = document.getElementById('pb-'+rec.id);
+    if (b) b.style.width = w+'%'; else clearInterval(iv);
+  }, 500);
+  el._iv = iv;
+
+  // update thumb when preview ready
+  setTimeout(() => {
+    if (rec.previewUrl) {
+      const t = document.getElementById('pt-'+rec.id);
+      if (t) t.innerHTML = `<img src="${rec.previewUrl}" alt="">`;
+    }
+  }, 600);
+}
+
+function updateProcItem(id, state) {
+  const ps = document.getElementById('ps-'+id);
+  const pb = document.getElementById('pb-'+id);
+  if (!ps) return;
+  const rec = records.find(r=>r.id===id);
+  if (state==='done') {
+    if (pb) pb.style.width = '100%';
+    ps.innerHTML = `<span class="status-ok">✓ Scanned</span>`;
+    if (rec) ps.innerHTML += ` <span class="badge b-${rec.category}">${rec.category}</span>`;
+  } else {
+    if (pb) pb.style.width = '100%';
+    ps.innerHTML = `<span class="status-err">⚠ Review manually</span>`;
+  }
+}
+
+// ── REVIEW ──
+let reviewFilterState = 'all';
+function setFilter(f, btn) {
+  reviewFilterState = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderReview();
+}
+
+function renderReview() {
+  const list = document.getElementById('review-list');
+  const filtered = reviewFilterState === 'all' ? records : records.filter(r => r.category === reviewFilterState);
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">🔍</span><p>No documents to review</p></div>';
+    return;
+  }
+  list.innerHTML = filtered.map(r => `
+    <div class="review-card" id="rc-${r.id}">
+      <div class="review-card-top">
+        <div class="review-img">
+          ${r.previewUrl ? `<img src="${r.previewUrl}" alt="">` : (r.ext==='pdf'?'📄':'🖼️')}
+        </div>
+        <div class="review-info">
+          <div class="review-supplier">${r.supplier || '(unknown supplier)'}</div>
+          <div class="review-filename">${r.renamedFilename || r.origName}</div>
+          <div class="review-tags">
+            <span class="badge b-${r.category}">${r.category}</span>
+            <span class="badge" style="background:var(--surface2);color:var(--text2)">${r.date}</span>
+            ${r.amount ? `<span class="badge" style="background:var(--surface2);color:var(--text)">${'$'+parseFloat(r.amount).toFixed(2)}</span>` : ''}
+            <span class="badge ${r.approved?'b-approved':'b-pending'}">${r.approved?'✓ Approved':'Pending'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="review-card-actions">
+        <button class="review-action-btn approve" onclick="approveRecord('${r.id}')" ${r.approved?'disabled style="opacity:0.45"':''}>
+          ${r.approved ? '✓ Done' : '✓ Approve'}
+        </button>
+        <button class="review-action-btn" onclick="openEdit('${r.id}')">✎ Edit</button>
+        <button class="review-action-btn remove" onclick="deleteRecord('${r.id}')">✕ Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+function approveRecord(id) {
+  const r = records.find(r=>r.id===id);
+  if (r) { r.approved = true; r.status = 'approved'; }
+  save(); renderReview(); updateBadges();
+  toast('Approved ✓');
+}
+function approveAll() {
+  records.forEach(r => { r.approved = true; r.status = 'approved'; });
+  save(); renderReview(); updateBadges();
+  toast('All approved ✓');
+}
+function deleteRecord(id) {
+  records = records.filter(r => r.id !== id);
+  save(); renderReview(); updateMetrics(); updateBadges();
+}
+
+// ── EDIT SHEET ──
+function openEdit(id) {
+  editingId = id;
+  const r = records.find(r => r.id === id);
+  if (!r) return;
+  const body = document.getElementById('edit-body');
+  body.innerHTML = `
+    ${r.ocrDone ? `<div class="ocr-detected"><span>✦</span><span>AI extracted this data — review and correct if needed</span></div>` : ''}
+    ${r.previewUrl ? `<div style="text-align:center"><img src="${r.previewUrl}" style="max-width:100%;max-height:200px;border-radius:10px;border:1px solid var(--border);object-fit:contain"></div>` : ''}
+    <div>
+      <label class="field-label">Category</label>
+      <div class="cat-picker" id="cat-picker">
+        ${CATS.map(c => `<button type="button" class="cat-opt ${c===r.category?'selected sel-'+c:''}" onclick="selectCat('${c}')">${c}</button>`).join('')}
+      </div>
+      <input type="hidden" id="ef-cat" value="${r.category}">
+    </div>
+    <div>
+      <label class="field-label">Supplier</label>
+      <input type="text" id="ef-sup" class="field-input" value="${r.supplier||''}" placeholder="Business name" oninput="refreshFilename()">
+    </div>
+    <div class="field-row">
+      <div>
+        <label class="field-label">Date</label>
+        <input type="date" id="ef-date" class="field-input" value="${r.date}" oninput="refreshFilename()">
+      </div>
+      <div>
+        <label class="field-label">Amount (incl. GST)</label>
+        <input type="number" id="ef-amt" class="field-input" value="${r.amount||''}" placeholder="0.00" step="0.01" oninput="autoGST()">
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label class="field-label">GST amount</label>
+        <input type="number" id="ef-gst" class="field-input" value="${r.gst||''}" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="field-label">Notes</label>
+        <input type="text" id="ef-notes" class="field-input" value="${r.notes||r.description||''}" placeholder="Optional note" oninput="refreshFilename()">
+      </div>
+    </div>
+    <div>
+      <label class="field-label">Renamed file</label>
+      <div class="rename-preview" id="ef-fn">${r.renamedFilename||r.origName}</div>
+    </div>
+    <div style="display:flex;gap:8px;padding-bottom:4px">
+      <button class="btn" onclick="closeEdit()" style="flex:1;justify-content:center">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()" style="flex:2;justify-content:center">Save changes</button>
+    </div>`;
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function selectCat(c) {
+  document.getElementById('ef-cat').value = c;
+  document.querySelectorAll('.cat-opt').forEach(b => { b.className = 'cat-opt' + (b.textContent===c ? ' selected sel-'+c : ''); });
+  refreshFilename();
+}
+
+function autoGST() {
+  const a = parseFloat(document.getElementById('ef-amt').value || 0);
+  if (a > 0) document.getElementById('ef-gst').value = (a/11).toFixed(2);
+  refreshFilename();
+}
+
+function refreshFilename() {
+  const date = (document.getElementById('ef-date').value || '').replace(/-/g,'');
+  const notes = document.getElementById('ef-notes').value || document.getElementById('ef-sup').value || 'expense';
+  const clean = notes.replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'-').slice(0,40);
+  const el = document.getElementById('ef-fn');
+  if (el) el.textContent = `${date}-${clean}.pdf`;
+}
+
+function saveEdit() {
+  const r = records.find(r => r.id === editingId);
+  if (!r) return;
+  r.category = document.getElementById('ef-cat').value;
+  r.supplier = document.getElementById('ef-sup').value;
+  r.date = document.getElementById('ef-date').value;
+  r.amount = document.getElementById('ef-amt').value;
+  r.gst = document.getElementById('ef-gst').value;
+  r.notes = document.getElementById('ef-notes').value;
+  r.description = r.notes || r.supplier;
+  updateFilename(r);
+  closeEdit();
+  save(); renderReview(); renderRecords(); updateMetrics();
+  toast('Saved');
+}
+
+function closeEdit() { document.getElementById('edit-overlay').classList.remove('open'); }
+function closeEditIfOutside(e) { if (e.target === document.getElementById('edit-overlay')) closeEdit(); }
+
+// ── RECORDS ──
+function renderRecords() {
+  const list = document.getElementById('records-list');
+  if (!records.length) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">📂</span><p>No records yet</p></div>';
+    return;
+  }
+  list.innerHTML = records.map(r => `
+    <div class="record-row" onclick="openEdit('${r.id}')">
+      <div style="width:36px;height:36px;border-radius:7px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border:1px solid var(--border)">
+        ${r.previewUrl ? `<img src="${r.previewUrl}" style="width:100%;height:100%;object-fit:cover">` : (r.ext==='pdf'?'📄':'🖼️')}
+      </div>
+      <div class="record-body">
+        <div class="record-supplier">${r.supplier || r.origName}</div>
+        <div class="record-meta"><span class="badge b-${r.category}" style="font-size:10px">${r.category}</span> · ${r.date}</div>
+      </div>
+      <div>
+        <div class="record-amount">${r.amount ? '$'+parseFloat(r.amount).toFixed(2) : '—'}</div>
+        <div class="record-amount-gst">${r.gst ? 'GST $'+parseFloat(r.gst).toFixed(2) : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── METRICS ──
+function updateMetrics() {
+  const gross = records.reduce((a,r) => a + parseFloat(r.amount||0), 0);
+  const gst = records.reduce((a,r) => a + parseFloat(r.gst||0), 0);
+  document.getElementById('m-count').textContent = records.length;
+  document.getElementById('m-gross').textContent = '$' + gross.toFixed(0);
+  document.getElementById('m-gst').textContent = '$' + gst.toFixed(0);
+  document.getElementById('m-net').textContent = '$' + (gross-gst).toFixed(0);
+}
+
+function updateBadges() {
+  const pending = records.filter(r => !r.approved).length;
+  const pip = document.getElementById('review-pip');
+  const tb = document.getElementById('topbar-badge');
+  pip.classList.toggle('show', pending > 0);
+  tb.textContent = pending + ' pending';
+  tb.classList.toggle('show', pending > 0);
+}
+
+// ── REPORT ──
+function renderReport() {
+  const qtr = document.getElementById('rpt-qtr').value;
+  const year = parseInt(document.getElementById('rpt-year').value);
+  const months = { Q1:[1,2,3], Q2:[4,5,6], Q3:[7,8,9], Q4:[10,11,12] };
+  const ms = months[qtr];
+  const subset = records.filter(r => {
+    const d = new Date(r.date);
+    return d.getFullYear()===year && ms.includes(d.getMonth()+1) && r.approved;
+  });
+  const out = document.getElementById('report-output');
+  if (!subset.length) {
+    out.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;color:var(--text3);font-size:13px"><p>No approved documents for ${qtr} ${year}.<br><br>Approve documents in the Review tab first.</p></div>`;
+    return;
+  }
+  const bycat = {};
+  CATS.forEach(c => { bycat[c] = { gross:0, gst:0, count:0 }; });
+  subset.forEach(r => {
+    bycat[r.category].gross += parseFloat(r.amount||0);
+    bycat[r.category].gst += parseFloat(r.gst||0);
+    bycat[r.category].count++;
+  });
+  const totalGross = subset.reduce((a,r) => a+parseFloat(r.amount||0), 0);
+  const totalGST = subset.reduce((a,r) => a+parseFloat(r.gst||0), 0);
+  const active = CATS.filter(c => bycat[c].count > 0);
+
+  out.innerHTML = `
+    <div class="report-summary-card">
+      <div class="report-sum-header">
+        <div class="report-sum-title">${qtr} ${year} — Expense summary</div>
+        <div class="report-sum-sub">${subset.length} document${subset.length!==1?'s':''} · approved</div>
+      </div>
+      <div class="report-sum-body">
+        ${active.map(c => `
+          <div class="report-sum-row">
+            <span class="label"><span class="badge b-${c}">${c}</span> ${bycat[c].count} doc${bycat[c].count!==1?'s':''}</span>
+            <span style="display:flex;flex-direction:column;align-items:flex-end">
+              <span style="font-weight:500">$${bycat[c].gross.toFixed(2)}</span>
+              <span style="font-size:11px;color:var(--text3)">GST $${bycat[c].gst.toFixed(2)}</span>
+            </span>
+          </div>`).join('')}
+      </div>
+      <div class="report-total"><span>Total incl. GST</span><span>$${totalGross.toFixed(2)}</span></div>
+      <div class="totals-mini"><span>GST component</span><span>$${totalGST.toFixed(2)}</span></div>
+      <div class="totals-mini" style="padding-top:0"><span>Net excl. GST</span><span>$${(totalGross-totalGST).toFixed(2)}</span></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="exportCSV()" style="margin-bottom:10px">Export CSV for accountant</button>`;
+}
+
+// ── SETTINGS ──
+function renderSettings() {
+  CATS.forEach(c => {
+    const el = document.querySelector(`[data-cat="${c}"]`);
+    if (el) el.value = catPaths[c] || '/TaxFiler/'+c+'/';
+  });
+  ['gdrive','onedrive','dropbox'].forEach(s => {
+    const tog = document.getElementById('toggle-'+s);
+    const sub = document.getElementById(s+'-sub');
+    if (!tog) return;
+    tog.className = 'settings-toggle' + (cloudState[s] ? ' on' : '');
+    if (sub) sub.textContent = cloudState[s] ? 'Connected (demo)' : 'Not connected';
+  });
+}
+
+function renderCatFolders() {
+  const rows = CATS.map(c => `
+    <div class="cat-folder-row">
+      <span class="badge b-${c}" style="min-width:72px;justify-content:center">${c}</span>
+      <input type="text" class="cat-folder-input" data-cat="${c}" value="${catPaths[c]||'/TaxFiler/'+c+'/'}" onchange="catPaths[this.dataset.cat]=this.value;save()">
+    </div>`).join('');
+  document.getElementById('cat-folder-rows').innerHTML = rows;
+}
+
+function toggleCloud(s) {
+  cloudState[s] = !cloudState[s];
+  save();
+  renderSettings();
+  toast(cloudState[s] ? `${s} connected (demo mode)` : `${s} disconnected`);
+}
+
+// ── EXPORT ──
+function exportCSV() {
+  if (!records.length) { toast('No records'); return; }
+  const rows = [['Original','Renamed','Date','Category','Supplier','Incl GST','GST','Excl GST','Notes','Approved']];
+  records.forEach(r => rows.push([r.origName, r.renamedFilename||r.origName, r.date, r.category, r.supplier, r.amount, r.gst, (parseFloat(r.amount||0)-parseFloat(r.gst||0)).toFixed(2), r.notes, r.approved?'Yes':'No']));
+  const csv = rows.map(r => r.map(v => '"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'taxfiler.csv';
+  a.click();
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', 2600);
+}
+
+// ── INIT ──
+checkApiKeyUI();
+renderCatFolders();
+updateMetrics();
+updateBadges();
+</script>
+</body>
+</html>
